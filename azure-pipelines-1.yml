@@ -1,4 +1,11 @@
 # ASP.NET Core (.NET Framework)
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription 1(2d405171-5d45-4092-8110-f675ec8d84dd)'
+    appType: 'webAppLinux'
+    appName: 'WebT'
+    package: 'C:/a/1/a/*.zip'
+    runtimeStack: 'DOTNETCORE|9.0'
 # Build and test ASP.NET Core projects targeting the full .NET Framework.
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
@@ -38,5 +45,12 @@ steps:
     azureSubscription: 'Azure subscription 1(2d405171-5d45-4092-8110-f675ec8d84dd)'
     appType: 'webAppLinux'
     appName: 'WebT'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    package: 'C:/a/1/a/*.zip'
+    runtimeStack: 'DOTNETCORE|9.0'
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription 1(2d405171-5d45-4092-8110-f675ec8d84dd)'
+    appType: 'webAppLinux'
+    appName: 'WebT'
+    package: 'C:/a/1/a/*.zip'
     runtimeStack: 'DOTNETCORE|9.0'

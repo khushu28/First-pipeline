@@ -1,0 +1,59 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  webAppName: 'WebT'  # Your Azure Web App name
+  azureSubscription: 'Azure subscription 1(2d405171-5d45-4092-8110-f675ec8d84dd)'
+
+stages:
+- stage: Build
+  displayName: 'Build and Test'
+  jobs:
+  - job: Build_Job
+    steps:
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(Build.ArtifactStagingDirectory)\WebApp.zip"'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: VSTest@2
+      inputs:
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: Deploy_Job
+    steps:
+    - download: current
+      artifact: drop
+
+ - task: AzureWebApp@1
+   inputs:
+     azureSubscription: 'Azure subscription 1(2d405171-5d45-4092-8110-f675ec8d84dd)'
+     appType: 'webAppLinux'
+     appName: 'WebT'
+     package: '$(Pipeline.Workspace)/drop/WebApp.zip'
+     runtimeStack: 'DOTNETCORE|9.0'
